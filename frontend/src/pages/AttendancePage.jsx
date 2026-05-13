@@ -12,9 +12,19 @@ function AttendancePage() {
   const [longitude, setLongitude] = useState(null)
   const [attendanceResult, setAttendanceResult] = useState(null)
   const [attendanceType, setAttendanceType] = useState("")
+  const [loading, setLoading] = useState(false)
 
   // GET GPS LOCATION
+
   const getLocation = () => {
+
+    if (!navigator.geolocation) {
+
+      alert("Geolocation is not supported")
+
+      return
+
+    }
 
     navigator.geolocation.getCurrentPosition(
 
@@ -23,14 +33,24 @@ function AttendancePage() {
         setLatitude(position.coords.latitude)
         setLongitude(position.coords.longitude)
 
+        alert("GPS location captured successfully")
+
       },
 
       (error) => {
 
         console.log(error)
 
-        alert(error.message)
+        alert(
+          "Unable to retrieve GPS location"
+        )
 
+      },
+
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
       }
 
     )
@@ -38,69 +58,136 @@ function AttendancePage() {
   }
 
   // SUBMIT ATTENDANCE
+
   const captureAttendance = async () => {
-
-    if (!employeeId) {
-
-      alert("Enter employee ID")
-      return
-
-    }
-
-    if (!latitude || !longitude) {
-
-      alert("Get GPS location first")
-      return
-
-    }
-
-    const imageSrc = webcamRef.current.getScreenshot()
-
-    const blob = await fetch(imageSrc)
-      .then((res) => res.blob())
-
-    const formData = new FormData()
-
-    formData.append("file", blob, "attendance.jpg")
-    formData.append("employee_id", employeeId)
-    formData.append("latitude", latitude)
-    formData.append("longitude", longitude)
 
     try {
 
+      setLoading(true)
+
+      setMessage("")
+
+      if (!employeeId) {
+
+        alert("Please enter employee ID")
+
+        setLoading(false)
+
+        return
+
+      }
+
+      if (!latitude || !longitude) {
+
+        alert("Please get GPS location first")
+
+        setLoading(false)
+
+        return
+
+      }
+
+      if (!webcamRef.current) {
+
+        alert("Camera not ready")
+
+        setLoading(false)
+
+        return
+
+      }
+
+      const imageSrc =
+        webcamRef.current.getScreenshot()
+
+      if (!imageSrc) {
+
+        alert("Failed to capture image")
+
+        setLoading(false)
+
+        return
+
+      }
+
+      const blob = await fetch(imageSrc)
+        .then((res) => res.blob())
+
+      const formData = new FormData()
+
+      formData.append(
+        "file",
+        blob,
+        "attendance.jpg"
+      )
+
+      formData.append(
+        "employee_id",
+        employeeId
+      )
+
+      formData.append(
+        "latitude",
+        latitude
+      )
+
+      formData.append(
+        "longitude",
+        longitude
+      )
+
       const response = await axios.post(
+
         "http://127.0.0.1:8000/api/attendance/log",
+
         formData,
+
         {
           headers: {
-            "Content-Type": "multipart/form-data"
+            "Content-Type":
+              "multipart/form-data"
           }
         }
+
       )
 
       console.log(response.data)
 
-      setMessage(response.data.message)
+      const result = response.data
 
-      setAttendanceResult(response.data)
+      setAttendanceResult(result)
+
+      setMessage(
+        result.message ||
+        "Attendance submitted successfully"
+      )
+
+      // DETECT TYPE
 
       if (
-  response.data.message.includes("TIME IN")
-) {
+        result.message &&
+        result.message.includes("TIME IN")
+      ) {
 
-  setAttendanceType("TIME IN")
+        setAttendanceType("TIME IN")
 
-} else if (
-  response.data.message.includes("TIME OUT")
-) {
+      } else if (
+        result.message &&
+        result.message.includes("TIME OUT")
+      ) {
 
-  setAttendanceType("TIME OUT")
+        setAttendanceType("TIME OUT")
 
-} else {
+      } else {
 
-  setAttendanceType("COMPLETED")
+        setAttendanceType("DONE")
 
-}
+      }
+
+      alert(
+        result.message ||
+        "Attendance submitted successfully"
+      )
 
     } catch (error) {
 
@@ -110,15 +197,31 @@ function AttendancePage() {
 
         console.log(error.response.data)
 
-        setMessage(
-          JSON.stringify(error.response.data)
-        )
+        const errorMessage =
+
+          error.response.data.detail ||
+          error.response.data.message ||
+          "Attendance request failed"
+
+        setMessage(errorMessage)
+
+        alert(errorMessage)
 
       } else {
 
-        setMessage(error.message)
+        setMessage(
+          "Cannot connect to backend server"
+        )
+
+        alert(
+          "Cannot connect to backend server"
+        )
 
       }
+
+    } finally {
+
+      setLoading(false)
 
     }
 
@@ -129,11 +232,14 @@ function AttendancePage() {
     <div
       style={{
         padding: "30px",
-        fontFamily: "Arial"
+        fontFamily: "Arial",
+        textAlign: "center"
       }}
     >
 
-      <h1>DFAMPC Attendance</h1>
+      <h1>
+        DFAMPC Attendance System
+      </h1>
 
       <input
         type="text"
@@ -143,9 +249,11 @@ function AttendancePage() {
           setEmployeeId(e.target.value)
         }
         style={{
-          padding: "10px",
+          padding: "12px",
           width: "300px",
-          marginBottom: "20px"
+          marginBottom: "20px",
+          borderRadius: "8px",
+          border: "1px solid #ccc"
         }}
       />
 
@@ -154,7 +262,15 @@ function AttendancePage() {
       <Webcam
         ref={webcamRef}
         screenshotFormat="image/jpeg"
-        width={400}
+        width={480}
+        height={360}
+        videoConstraints={{
+          facingMode: "user"
+        }}
+        style={{
+          borderRadius: "10px",
+          border: "2px solid #ccc"
+        }}
       />
 
       <br />
@@ -163,8 +279,9 @@ function AttendancePage() {
       <button
         onClick={getLocation}
         style={{
-          padding: "10px 20px",
-          marginRight: "10px"
+          padding: "12px 20px",
+          marginRight: "10px",
+          cursor: "pointer"
         }}
       >
         Get GPS Location
@@ -172,62 +289,95 @@ function AttendancePage() {
 
       <button
         onClick={captureAttendance}
+        disabled={loading}
         style={{
-          padding: "10px 20px"
+          padding: "12px 20px",
+          cursor: "pointer"
         }}
       >
-        Submit Attendance
+
+        {
+          loading
+            ? "Submitting..."
+            : "Submit Attendance"
+        }
+
       </button>
 
       <br />
       <br />
 
-      <p>
-        Latitude: {latitude}
-      </p>
+      <h3>
+        Latitude: {latitude || "N/A"}
+      </h3>
 
-      <p>
-        Longitude: {longitude}
-      </p>
+      <h3>
+        Longitude: {longitude || "N/A"}
+      </h3>
 
-      <h2>{message}</h2>
+      {
+        message && (
+
+          <div
+            style={{
+              marginTop: "20px"
+            }}
+          >
+
+            <h2>{message}</h2>
+
+          </div>
+
+        )
+      }
 
       {
         attendanceResult && (
 
           <div
             style={{
-              marginTop: "20px",
+              marginTop: "30px",
               padding: "20px",
-              border: "1px solid #ccc",
               borderRadius: "10px",
+              width: "400px",
+              marginLeft: "auto",
+              marginRight: "auto",
+              color: "black",
+
               backgroundColor:
 
-  attendanceType === "TIME IN"
+                attendanceType === "TIME IN"
 
-    ? "#d4edda"
+                  ? "#d4edda"
 
-    : attendanceType === "TIME OUT"
+                  : attendanceType === "TIME OUT"
 
-    ? "#f8d7da"
+                  ? "#f8d7da"
 
-    : "#fff3cd"
+                  : "#fff3cd"
             }}
           >
 
             <h2>
 
-  {
-    attendanceType === "TIME IN"
-      ? "🟢 TIME IN SUCCESS"
+              {
+                attendanceType === "TIME IN"
 
-      : attendanceType === "TIME OUT"
-      ? "🔴 TIME OUT SUCCESS"
+                  ? "🟢 TIME IN SUCCESS"
 
-      : "⚠ Attendance Completed"
-  }
+                  : attendanceType === "TIME OUT"
 
-</h2>
+                  ? "🔴 TIME OUT SUCCESS"
+
+                  : "⚠ ATTENDANCE COMPLETED"
+              }
+
+            </h2>
+
+            <p>
+              <strong>Employee:</strong>{" "}
+              {attendanceResult.employee_id}
+            </p>
 
             <p>
               <strong>Status:</strong>{" "}
@@ -240,12 +390,7 @@ function AttendancePage() {
             </p>
 
             <p>
-              <strong>Employee:</strong>{" "}
-              {attendanceResult.employee_id}
-            </p>
-
-            <p>
-              <strong>Time:</strong>{" "}
+              <strong>Timestamp:</strong>{" "}
               {attendanceResult.timestamp}
             </p>
 
