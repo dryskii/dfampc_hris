@@ -1,6 +1,6 @@
 import { useRef, useState } from "react"
 import Webcam from "react-webcam"
-import axios from "axios"
+import api from "../services/api"
 
 function AttendancePage() {
 
@@ -136,7 +136,7 @@ function AttendancePage() {
         longitude
       )
 
-      const response = await axios.post(
+      const response = await api.post(
 
         "http://127.0.0.1:8000/api/attendance/log",
 
