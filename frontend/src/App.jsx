@@ -29,19 +29,23 @@ function App() {
 
       <Routes>
 
+        {/* LOGIN PAGE */}
         <Route
           path="/"
           element={<LoginPage />}
         />
-        <Route
-  path="/admin/dashboard"
-  element={
-    <ProtectedRoute>
-      <AdminDashboardPage />
-    </ProtectedRoute>
-  }
-/>
 
+        {/* ADMIN DASHBOARD */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* USER DASHBOARD */}
         <Route
           path="/dashboard"
           element={
@@ -51,14 +55,11 @@ function App() {
           }
         />
 
+        {/* PUBLIC ATTENDANCE PAGE */}
         <Route
-  path="/attendance"
-  element={
-    <ProtectedRoute>
-      <AttendancePage />
-    </ProtectedRoute>
-  }
-/>
+          path="/attendance"
+          element={<AttendancePage />}
+        />
 
       </Routes>
 
