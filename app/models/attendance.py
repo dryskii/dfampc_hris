@@ -20,4 +20,26 @@ class Attendance(Base):
 
     device_id = Column(String)
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+# Branch Assignment
+
+branch_id = Column(String)
+
+# Attendance Intelligence
+
+hours_worked = Column(Float, default=0)
+
+late_minutes = Column(Float, default=0)
+
+undertime_minutes = Column(Float, default=0)
+
+overtime_minutes = Column(Float, default=0)
+
+# Face Verification
+
+face_verified = Column(String, default="No")
+
+# Offline Sync
+
+sync_status = Column(String, default="synced")
+
+created_at = Column(DateTime, default=datetime.utcnow)

@@ -1,124 +1,261 @@
-import React from "react"
-
 import {
+  LayoutDashboard,
   Users,
   CalendarCheck,
-  Clock,
-  FileText
+  Clock3,
+  FileText,
+  Settings,
+  Wallet,
+  LogOut
 } from "lucide-react"
+
+import { useNavigate } from "react-router-dom"
 
 function DashboardPage() {
 
+  const navigate = useNavigate()
+
+  const cards = [
+
+    {
+      title: "Employees",
+      value: "25",
+      icon: <Users size={32} />,
+      color: "#2563eb"
+    },
+
+    {
+      title: "Present Today",
+      value: "20",
+      icon: <CalendarCheck size={32} />,
+      color: "#16a34a"
+    },
+
+    {
+      title: "Late Employees",
+      value: "3",
+      icon: <Clock3 size={32} />,
+      color: "#dc2626"
+    },
+
+    {
+      title: "Leave Requests",
+      value: "2",
+      icon: <FileText size={32} />,
+      color: "#ca8a04"
+    }
+
+  ]
+
+  function logout() {
+
+    localStorage.removeItem("token")
+
+    localStorage.removeItem("refresh_token")
+
+    navigate("/")
+
+  }
+
   return (
 
-    <div className="min-h-screen bg-gray-100 flex">
+    <div
+      style={{
+        display: "flex",
+        minHeight: "100vh",
+        background: "#0f172a",
+        color: "white",
+        fontFamily: "Arial"
+      }}
+    >
 
       {/* SIDEBAR */}
-      <div className="w-64 bg-slate-900 text-white p-5">
 
-        <h1 className="text-2xl font-bold mb-8">
-          DFAMPC HRIS
-        </h1>
+      <div
+        style={{
+          width: "260px",
+          background: "#111827",
+          padding: "25px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          borderRight: "1px solid #1e293b"
+        }}
+      >
 
-        <ul className="space-y-4">
+        <div>
 
-          <li className="hover:text-blue-400 cursor-pointer">
-            Dashboard
-          </li>
+          <h1
+            style={{
+              fontSize: "28px",
+              marginBottom: "40px",
+              fontWeight: "bold"
+            }}
+          >
+            DFAMPC HRIS
+          </h1>
 
-          <li className="hover:text-blue-400 cursor-pointer">
-            Employees
-          </li>
+          <SidebarItem
+            icon={<LayoutDashboard size={20} />}
+            text="Dashboard"
+            onClick={() => navigate("/dashboard")}
+          />
 
-          <li className="hover:text-blue-400 cursor-pointer">
-            Attendance
-          </li>
+          <SidebarItem
+            icon={<Users size={20} />}
+            text="Employees"
+            onClick={() => navigate("/employees")}
+          />
 
-          <li className="hover:text-blue-400 cursor-pointer">
-            Leave
-          </li>
+          {/* NEW BRANCH MENU */}
 
-          <li className="hover:text-blue-400 cursor-pointer">
-            Payroll
-          </li>
+          <SidebarItem
+            icon={<Settings size={20} />}
+            text="Branches"
+            onClick={() => navigate("/branches")}
+          />
 
-          <li className="hover:text-blue-400 cursor-pointer">
-            Reports
-          </li>
+          <SidebarItem
+            icon={<CalendarCheck size={20} />}
+            text="Attendance"
+            onClick={() => navigate("/attendance")}
+          />
 
-          <li className="hover:text-blue-400 cursor-pointer">
-            Settings
-          </li>
+          <SidebarItem
+            icon={<FileText size={20} />}
+            text="Leave"
+          />
 
-        </ul>
+          <SidebarItem
+            icon={<Wallet size={20} />}
+            text="Payroll"
+          />
+
+          <SidebarItem
+            icon={<Settings size={20} />}
+            text="Settings"
+          />
+
+        </div>
+
+        <div>
+
+          <SidebarItem
+            icon={<LogOut size={20} />}
+            text="Logout"
+            onClick={logout}
+          />
+
+        </div>
 
       </div>
 
       {/* MAIN CONTENT */}
-      <div className="flex-1 p-8">
 
-        <h2 className="text-4xl font-bold mb-8">
-          Dashboard
-        </h2>
+      <div
+        style={{
+          flex: 1,
+          padding: "30px"
+        }}
+      >
 
-        {/* CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* TOP BAR */}
 
-          <div className="bg-white p-6 rounded-2xl shadow">
+        <div
+          style={{
+            marginBottom: "30px"
+          }}
+        >
 
-            <Users size={40} />
+          <h1
+            style={{
+              fontSize: "36px",
+              fontWeight: "bold"
+            }}
+          >
+            Dashboard
+          </h1>
 
-            <h3 className="text-xl mt-4">
-              Employees
-            </h3>
+          <p
+            style={{
+              color: "#94a3b8",
+              marginTop: "5px"
+            }}
+          >
+            Welcome to DFAMPC Human Resource Information System
+          </p>
 
-            <p className="text-3xl font-bold">
-              25
-            </p>
+        </div>
 
-          </div>
+        {/* DASHBOARD CARDS */}
 
-          <div className="bg-white p-6 rounded-2xl shadow">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(250px, 1fr))",
+            gap: "20px"
+          }}
+        >
 
-            <CalendarCheck size={40} />
+          {
+            cards.map((card, index) => (
 
-            <h3 className="text-xl mt-4">
-              Present Today
-            </h3>
+              <div
+                key={index}
+                style={{
+                  background: "#1e293b",
+                  padding: "25px",
+                  borderRadius: "16px",
+                  boxShadow:
+                    "0 4px 10px rgba(0,0,0,0.3)"
+                }}
+              >
 
-            <p className="text-3xl font-bold">
-              20
-            </p>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                  }}
+                >
 
-          </div>
+                  <div>
 
-          <div className="bg-white p-6 rounded-2xl shadow">
+                    <h3
+                      style={{
+                        color: "#cbd5e1",
+                        marginBottom: "10px"
+                      }}
+                    >
+                      {card.title}
+                    </h3>
 
-            <Clock size={40} />
+                    <h1
+                      style={{
+                        fontSize: "42px",
+                        fontWeight: "bold"
+                      }}
+                    >
+                      {card.value}
+                    </h1>
 
-            <h3 className="text-xl mt-4">
-              Late Employees
-            </h3>
+                  </div>
 
-            <p className="text-3xl font-bold">
-              3
-            </p>
+                  <div
+                    style={{
+                      color: card.color
+                    }}
+                  >
+                    {card.icon}
+                  </div>
 
-          </div>
+                </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow">
+              </div>
 
-            <FileText size={40} />
-
-            <h3 className="text-xl mt-4">
-              Leave Requests
-            </h3>
-
-            <p className="text-3xl font-bold">
-              2
-            </p>
-
-          </div>
+            ))
+          }
 
         </div>
 
@@ -127,6 +264,42 @@ function DashboardPage() {
     </div>
 
   )
+
+}
+
+function SidebarItem({
+
+  icon,
+  text,
+  onClick
+
+}) {
+
+  return (
+
+    <div
+      onClick={onClick}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        padding: "14px",
+        borderRadius: "10px",
+        cursor: "pointer",
+        marginBottom: "10px",
+        transition: "0.2s",
+        background: "#1e293b"
+      }}
+    >
+
+      {icon}
+
+      <span>{text}</span>
+
+    </div>
+
+  )
+
 }
 
 export default DashboardPage

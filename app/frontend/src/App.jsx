@@ -1,6 +1,7 @@
 console.log("APP JSX LOADED")
 
 import {
+  BrowserRouter,
   Routes,
   Route,
   Navigate
@@ -10,13 +11,16 @@ import LoginPage from "./pages/LoginPage"
 import DashboardPage from "./pages/DashboardPage"
 import AttendancePage from "./pages/AttendancePage"
 import AdminDashboardPage from "./pages/AdminDashboardPage"
+import EmployeesPage from "./pages/EmployeesPage"
 
 function ProtectedRoute({ children }) {
 
   const token = localStorage.getItem("token")
 
   if (!token) {
+
     return <Navigate to="/" />
+
   }
 
   return children
@@ -31,10 +35,14 @@ function App() {
 
       <Routes>
 
+        {/* LOGIN */}
+
         <Route
           path="/"
           element={<LoginPage />}
         />
+
+        {/* DASHBOARD */}
 
         <Route
           path="/dashboard"
@@ -45,6 +53,8 @@ function App() {
           }
         />
 
+        {/* ATTENDANCE */}
+
         <Route
           path="/attendance"
           element={
@@ -53,6 +63,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* ADMIN DASHBOARD */}
 
         <Route
           path="/admin/dashboard"
@@ -63,9 +75,20 @@ function App() {
           }
         />
 
+        {/* EMPLOYEES */}
+
+        <Route
+          path="/employees"
+          element={
+            <ProtectedRoute>
+              <EmployeesPage />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
 
-  
+    </BrowserRouter>
 
   )
 

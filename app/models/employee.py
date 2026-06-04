@@ -1,38 +1,31 @@
 from sqlalchemy import (
     Column,
+    Integer,
     String,
-    Float,
-    Date,
-    DateTime
+    Boolean,
+    Numeric,
+    TIMESTAMP,
+    ForeignKey
 )
 
-from app.core.database import Base
+from sqlalchemy.sql import func
 
-from datetime import datetime
-import uuid
+from app.core.database import Base
 
 
 class Employee(Base):
 
     __tablename__ = "employees"
 
-    id = Column(
-        String,
-        primary_key=True,
-        default=lambda: str(uuid.uuid4())
-    )
+    id = Column(Integer, primary_key=True, index=True)
 
-    employee_id = Column(
-        String,
-        unique=True,
-        nullable=False
-    )
+    employee_id = Column(String, unique=True)
 
-    first_name = Column(String)
+    firstname = Column(String)
 
-    middle_name = Column(String)
+    lastname = Column(String)
 
-    last_name = Column(String)
+    middlename = Column(String)
 
     department = Column(String)
 
@@ -40,19 +33,22 @@ class Employee(Base):
 
     employment_status = Column(String)
 
-    contact_number = Column(String)
-
     email = Column(String)
 
-    address = Column(String)
+    mobile = Column(String)
 
-    date_hired = Column(Date)
+    role = Column(String)
 
-    basic_salary = Column(Float)
+    salary = Column(Numeric)
 
-    status = Column(String, default="ACTIVE")
+    leave_balance = Column(Integer, default=15)
+
+    is_active = Column(Boolean, default=True)
+
+    # CONNECT EMPLOYEE TO BRANCH
+    branch_id = Column(Integer, ForeignKey("branches.id"))
 
     created_at = Column(
-        DateTime,
-        default=datetime.utcnow
+        TIMESTAMP,
+        server_default=func.now()
     )

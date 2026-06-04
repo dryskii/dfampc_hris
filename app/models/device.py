@@ -9,12 +9,39 @@ class Device(Base):
 
     __tablename__ = "devices"
 
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(
+        String,
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
 
-    employee_id = Column(String, nullable=False)
+    employee_id = Column(
+        String,
+        nullable=False
+    )
 
-    device_id = Column(String, nullable=False, unique=True)
+    device_id = Column(
+        String,
+        nullable=False,
+        unique=True
+    )
 
-    device_name = Column(String, nullable=True)
+    device_name = Column(
+        String,
+        nullable=True
+    )
 
-    registered_at = Column(DateTime, default=datetime.utcnow)
+    is_approved = Column(
+        String,
+        default="No"
+    )
+
+    status = Column(
+        String,
+        default="Active"
+    )
+
+    registered_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )

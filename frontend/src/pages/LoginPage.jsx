@@ -1,131 +1,150 @@
 import { useState } from "react"
+
 import { useNavigate } from "react-router-dom"
+
+import { loginUser } from "../services/auth"
 
 function LoginPage() {
 
-  const navigate = useNavigate()
+    const navigate = useNavigate()
 
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [message, setMessage] = useState("")
+    const [username, setUsername] = useState("")
 
-  const handleLogin = (e) => {
+    const [password, setPassword] = useState("")
 
-    e.preventDefault()
+    const [loading, setLoading] = useState(false)
 
-    /*
-      TEMPORARY LOGIN
-    */
+    async function handleLogin(e) {
 
-    if (
-      username === "admin" &&
-      password === "admin"
-    ) {
+        e.preventDefault()
 
-      localStorage.setItem(
-        "token",
-        "sample_token"
-      )
+        try {
 
-      navigate("/dashboard")
+            setLoading(true)
 
-    } else {
+            const result = await loginUser(
 
-      setMessage("Invalid credentials")
+                username,
+                password
+            )
+
+            localStorage.setItem(
+                "token",
+                result.access_token
+            )
+
+            localStorage.setItem(
+                "refresh_token",
+                result.refresh_token
+            )
+
+            alert("Login successful")
+
+            navigate("/dashboard")
+
+        } catch (error) {
+
+            console.log(error)
+
+            alert("Invalid credentials")
+
+        } finally {
+
+            setLoading(false)
+
+        }
     }
-  }
 
-  return (
+    return (
 
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        background: "#e2e8f0"
-      }}
-    >
-
-      <div
-        style={{
-          background: "white",
-          padding: "40px",
-          width: "350px",
-          borderRadius: "10px",
-          boxShadow: "0 0 10px rgba(0,0,0,0.1)"
-        }}
-      >
-
-        <h1
-          style={{
-            textAlign: "center",
-            marginBottom: "30px"
-          }}
+        <div
+            style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100vh",
+                background: "#0f172a"
+            }}
         >
-          DFAMPC HRIS
-        </h1>
 
-        <form onSubmit={handleLogin}>
+            <form
+                onSubmit={handleLogin}
+                style={{
+                    background: "#1e293b",
+                    padding: "40px",
+                    borderRadius: "12px",
+                    width: "350px",
+                    color: "white"
+                }}
+            >
 
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) =>
-              setUsername(e.target.value)
-            }
-            style={{
-              width: "100%",
-              padding: "12px",
-              marginBottom: "15px"
-            }}
-          />
+                <h1
+                    style={{
+                        marginBottom: "30px",
+                        textAlign: "center"
+                    }}
+                >
+                    DFAMPC HRIS
+                </h1>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
-            style={{
-              width: "100%",
-              padding: "12px",
-              marginBottom: "20px"
-            }}
-          />
+                <input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) =>
+                        setUsername(e.target.value)
+                    }
+                    style={{
+                        width: "100%",
+                        padding: "12px",
+                        marginBottom: "15px",
+                        borderRadius: "8px",
+                        border: "none"
+                    }}
+                />
 
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              padding: "12px",
-              background: "#2563eb",
-              color: "white",
-              border: "none",
-              cursor: "pointer"
-            }}
-          >
-            Login
-          </button>
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) =>
+                        setPassword(e.target.value)
+                    }
+                    style={{
+                        width: "100%",
+                        padding: "12px",
+                        marginBottom: "20px",
+                        borderRadius: "8px",
+                        border: "none"
+                    }}
+                />
 
-        </form>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    style={{
+                        width: "100%",
+                        padding: "12px",
+                        background: "#2563eb",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "8px",
+                        cursor: "pointer"
+                    }}
+                >
 
-        <p
-          style={{
-            color: "red",
-            marginTop: "15px",
-            textAlign: "center"
-          }}
-        >
-          {message}
-        </p>
+                    {
+                        loading
+                            ? "Logging in..."
+                            : "Login"
+                    }
 
-      </div>
+                </button>
 
-    </div>
-  )
+            </form>
+
+        </div>
+    )
 }
 
 export default LoginPage

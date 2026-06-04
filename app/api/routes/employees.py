@@ -2,74 +2,151 @@ from fastapi import APIRouter, Depends
 
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
+from app.core.database import SessionLocal
 
 from app.models.employee import Employee
 
 from app.schemas.employee import (
-    EmployeeCreate
+    EmployeeCreate,
+    EmployeeResponse
 )
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/api/employees",
+    tags=["Employees"]
+)
 
 
-#
+def get_db():
+
+    db = SessionLocal()
+
+    try:
+
+        yield db
+
+    finally:
+
+        db.close()
+
+
 # CREATE EMPLOYEE
-#
 
-@router.post("/")
+@router.post("/", response_model=EmployeeResponse)
+
 def create_employee(
-    request: EmployeeCreate,
+
+    employee: EmployeeCreate,
+
     db: Session = Depends(get_db)
+
 ):
 
-    employee = Employee(
+    new_employee = Employee(**employee.dict())
 
-        employee_id=request.employee_id,
-
-        first_name=request.first_name,
-
-        middle_name=request.middle_name,
-
-        last_name=request.last_name,
-
-        department=request.department,
-
-        position=request.position,
-
-        employment_status=request.employment_status,
-
-        contact_number=request.contact_number,
-
-        email=request.email,
-
-        address=request.address,
-
-        date_hired=request.date_hired,
-
-        basic_salary=request.basic_salary
-    )
-
-    db.add(employee)
+    db.add(new_employee)
 
     db.commit()
 
-    db.refresh(employee)
+    db.refresh(new_employee)
 
-    return {
-        "message": "Employee created successfully"
-    }
+    return new_employee
 
 
-#
-# GET EMPLOYEES
-#
+# GET ALL EMPLOYEES
 
-@router.get("/")
+@router.get("/", response_model=list[EmployeeResponse])
+
 def get_employees(
+
     db: Session = Depends(get_db)
+
 ):
 
-    employees = db.query(Employee).all()
+    return db.query(Employee).all()
 
-    return employees
+
+# UPDATE EMPLOYEE
+
+@router.put("/{employee_id}")
+
+def update_employee(
+
+    employee_id: int,
+
+    employee: EmployeeCreate,
+
+    db: Session = Depends(get_db)
+
+):
+
+    existing_employee = db.query(Employee).filter(
+        Employee.id == employee_id
+    ).first()
+
+    if not existing_employee:
+
+        return {
+            "message": "Employee not found"
+        }
+
+    existing_employee.employee_id = employee.employee_id
+
+    existing_employee.firstname = employee.firstname
+
+    existing_employee.middlename = employee.middlename
+
+    existing_employee.lastname = employee.lastname
+
+    existing_employee.department = employee.department
+
+    existing_employee.position = employee.position
+
+    existing_employee.employment_status = employee.employment_status
+
+    existing_employee.email = employee.email
+
+    existing_employee.mobile = employee.mobile
+
+    existing_employee.role = employee.role
+
+    existing_employee.salary = employee.salary
+
+    existing_employee.branch_id = employee.branch_id
+
+    db.commit()
+
+    db.refresh(existing_employee)
+
+    return existing_employee
+
+
+# DELETE EMPLOYEE
+
+@router.delete("/{employee_id}")
+
+def delete_employee(
+
+    employee_id: int,
+
+    db: Session = Depends(get_db)
+
+):
+
+    employee = db.query(Employee).filter(
+        Employee.id == employee_id
+    ).first()
+
+    if not employee:
+
+        return {
+            "message": "Employee not found"
+        }
+
+    db.delete(employee)
+
+    db.commit()
+
+    return {
+        "message": "Employee deleted successfully"
+    }

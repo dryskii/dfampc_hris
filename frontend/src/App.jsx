@@ -6,19 +6,29 @@ import {
 } from "react-router-dom"
 
 import LoginPage from "./pages/LoginPage"
+
 import DashboardPage from "./pages/DashboardPage"
+
 import AttendancePage from "./pages/AttendancePage.jsx"
+
 import AdminDashboardPage from "./pages/AdminDashboardPage"
+
+import EmployeePage from "./pages/EmployeePage"
+
+import BranchPage from "./pages/BranchPage"
 
 function ProtectedRoute({ children }) {
 
   const token = localStorage.getItem("token")
 
   if (!token) {
+
     return <Navigate to="/" />
+
   }
 
   return children
+
 }
 
 function App() {
@@ -55,6 +65,25 @@ function App() {
           }
         />
 
+        {/* EMPLOYEE MANAGEMENT */}
+        <Route
+          path="/employees"
+          element={
+            <ProtectedRoute>
+              <EmployeePage />
+            </ProtectedRoute>
+          }
+        />
+
+          <Route
+    path="/branches"
+    element={
+        <ProtectedRoute>
+            <BranchPage />
+        </ProtectedRoute>
+    }
+/>
+
         {/* PUBLIC ATTENDANCE PAGE */}
         <Route
           path="/attendance"
@@ -64,7 +93,9 @@ function App() {
       </Routes>
 
     </BrowserRouter>
+
   )
+
 }
 
 export default App

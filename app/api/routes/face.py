@@ -22,6 +22,7 @@ async def register_face(
     employee_id: str = Query(...),
 
     file: UploadFile = File(...)
+
 ):
 
     filename = f"{employee_id}.jpg"
@@ -41,6 +42,7 @@ async def register_face(
     return {
 
         "message": "Face registered successfully",
+
         "employee_id": employee_id
     }
 
@@ -53,6 +55,7 @@ async def verify_face(
     employee_id: str = Query(...),
 
     file: UploadFile = File(...)
+
 ):
 
     registered_face_path = os.path.join(
@@ -67,6 +70,7 @@ async def verify_face(
     if not os.path.exists(
 
         registered_face_path
+
     ):
 
         return {
@@ -90,6 +94,7 @@ async def verify_face(
         temp_uploaded_path,
 
         "wb"
+
     ) as buffer:
 
         shutil.copyfileobj(
@@ -99,7 +104,7 @@ async def verify_face(
             buffer
         )
 
-    # VERIFY
+    # VERIFY FACES
 
     verified = verify_faces(
 
@@ -110,21 +115,20 @@ async def verify_face(
 
     # DELETE TEMP FILE
 
-    os.remove(temp_uploaded_path)
+    if os.path.exists(
+
+        temp_uploaded_path
+
+    ):
+
+        os.remove(
+
+            temp_uploaded_path
+        )
 
     return {
 
-        "verified": verified
-    }
-async def verify_face(
+        "verified": verified,
 
-    employee_id: str = Query(...),
-
-    file: UploadFile = File(...)
-):
-
-    return {
-
-        "verified": True,
         "employee_id": employee_id
     }

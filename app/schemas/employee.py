@@ -1,44 +1,24 @@
 from pydantic import BaseModel
-from datetime import date
-
 
 class EmployeeCreate(BaseModel):
 
     employee_id: str
-
-    first_name: str
-
-    middle_name: str | None = None
-
-    last_name: str
-
+    firstname: str
+    lastname: str
+    middlename: str | None = None
     department: str
-
     position: str
-
     employment_status: str
-
-    contact_number: str
-
     email: str
-
-    address: str
-
-    date_hired: date
-
-    basic_salary: float
+    mobile: str
+    role: str
+    salary: float
+    branch_id: int | None = None
 
 
-class EmployeeResponse(BaseModel):
+class EmployeeResponse(EmployeeCreate):
 
-    employee_id: str
+    id: int
 
-    first_name: str
-
-    last_name: str
-
-    department: str
-
-    position: str
-
-    status: str
+    class Config:
+        from_attributes = True

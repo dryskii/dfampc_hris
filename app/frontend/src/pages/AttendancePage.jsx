@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react"
+import { useRef, useState } from "react"
 import Webcam from "react-webcam"
 import api from "../services/api"
 
@@ -14,30 +14,6 @@ function AttendancePage() {
   const [attendanceType, setAttendanceType] = useState("")
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-
-  navigator.geolocation.getCurrentPosition(
-
-    (position) => {
-
-      setLatitude(position.coords.latitude)
-
-      setLongitude(position.coords.longitude)
-
-    },
-
-    (error) => {
-
-      console.log(error)
-
-      alert("Unable to get GPS location")
-
-    }
-
-  )
-
-}, [])
-  
   // GET GPS LOCATION
 
   const getLocation = () => {
@@ -66,16 +42,16 @@ function AttendancePage() {
         console.log(error)
 
         alert(
-          "Unable to retrieve GPS location"
+          "GPS Error: " + error.message
         )
 
       },
 
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
+  enableHighAccuracy: false,
+  timeout: 20000,
+  maximumAge: 60000
+}
 
     )
 
@@ -162,7 +138,7 @@ function AttendancePage() {
 
       const response = await api.post(
 
-        "http://127.0.0.1:8000/log",
+        "/api/attendance/log",
 
         formData,
 

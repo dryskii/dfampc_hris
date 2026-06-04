@@ -2,11 +2,10 @@ from fastapi import APIRouter, Depends
 
 from sqlalchemy.orm import Session
 
-from datetime import timedelta
-
 from app.core.database import get_db
 
 from app.models.leave import Leave
+from app.models.employee import Employee
 
 from app.schemas.leave import (
     LeaveCreate,
@@ -30,6 +29,22 @@ def file_leave(
         request.end_date -
         request.start_date
     ).days + 1
+
+    employee = db.query(Employee).filter(
+        Employee.employee_id == request.employee_id
+    ).first()
+
+    if not employee:
+        return {
+            "message": "Employee not found"
+        }
+
+    if employee.leave_balance < total_days:
+        return {
+            "message":
+                f"Insufficient leave balance. "
+                f"Available: {employee.leave_balance}"
+        }
 
     leave = Leave(
 
@@ -94,6 +109,21 @@ def approve_leave(
     leave.status = request.status
 
     leave.approved_by = request.approved_by
+
+    # AUTO DEDUCT LEAVE BALANCE
+
+    if request.status.upper() == "APPROVED":
+
+        employee = db.query(Employee).filter(
+            Employee.employee_id == leave.employee_id
+        ).first()
+
+        if employee:
+
+            employee.leave_balance = (
+                employee.leave_balance -
+                leave.total_days
+            )
 
     db.commit()
 
